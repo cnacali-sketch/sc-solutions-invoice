@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SC Solutions - Invoice App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div id="app">
+
+<!-- Home Screen -->
+<div id="screen-home" class="screen active">
+    <div class="home-container">
+        <div class="home-logo">
+            <div class="logo-icon">SC</div>
+            <h1>SC Solutions</h1>
+            <p class="subtitle">AC Service, Repair, Installation & Resale</p>
+        </div>
+        <div class="home-menu">
+            <button class="home-btn" data-target="screen-invoice">
+                <span class="btn-icon">&#128196;</span>
+                <span class="btn-text">New Invoice</span>
+                <span class="btn-arrow">&#8250;</span>
+            </button>
+            <button class="home-btn" data-target="screen-catalog">
+                <span class="btn-icon">&#128230;</span>
+                <span class="btn-text">Suggested Items</span>
+                <span class="btn-arrow">&#8250;</span>
+            </button>
+            <button class="home-btn" data-target="screen-history">
+                <span class="btn-icon">&#128203;</span>
+                <span class="btn-text">Invoice History</span>
+                <span class="btn-arrow">&#8250;</span>
+            </button>
+            <button class="home-btn" data-target="screen-settings">
+                <span class="btn-icon">&#9881;</span>
+                <span class="btn-text">Settings</span>
+                <span class="btn-arrow">&#8250;</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Screen -->
+<div id="screen-invoice" class="screen">
+    <div class="screen-header">
+        <button class="back-btn" data-target="screen-home">&#8249;</button>
+        <h2>Create Invoice</h2>
+    </div>
+    <div class="scroll-container">
+        <div class="section">
+            <div class="section-title">Invoice Details</div>
+            <div class="form-row">
+                <label>Invoice No #</label>
+                <input type="text" id="invoice_no" placeholder="Invoice No">
+            </div>
+            <div class="form-row">
+                <label>Invoice Date</label>
+                <input type="text" id="invoice_date" placeholder="DD-MM-YYYY">
+            </div>
+            <div class="form-row">
+                <label>Payment Status</label>
+                <select id="payment_status">
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid" selected>Unpaid</option>
+                    <option value="Advance Received">Advance Received</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Customer Details</div>
+            <div class="form-row">
+                <label>Customer Name</label>
+                <input type="text" id="customer_name" placeholder="Customer Name">
+            </div>
+            <div class="form-row">
+                <label>Phone</label>
+                <input type="text" id="customer_phone" placeholder="Customer Phone">
+            </div>
+            <div class="form-row">
+                <label>Address</label>
+                <textarea id="customer_address" rows="3" placeholder="Customer Address"></textarea>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Job / Product Details</div>
+            <div class="form-row">
+                <label>Unit Type</label>
+                <select id="unit_type">
+                    <option value="Split Unit" selected>Split Unit</option>
+                    <option value="Cassette Unit">Cassette Unit</option>
+                    <option value="Ductable Unit">Ductable Unit</option>
+                    <option value="Resale">Resale</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Work Type</label>
+                <select id="work_type">
+                    <option value="Service" selected>Service</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Installation">Installation</option>
+                    <option value="Repair">Repair</option>
+                    <option value="Gas Charging">Gas Charging</option>
+                    <option value="PCB Replacement">PCB Replacement</option>
+                    <option value="Resale">Resale</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Default GST</label>
+                <select id="gst_default">
+                    <option value="0%">0%</option>
+                    <option value="5%">5%</option>
+                    <option value="12%">12%</option>
+                    <option value="18%" selected>18%</option>
+                    <option value="28%">28%</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Template Style</div>
+            <div class="template-row">
+                <button class="template-btn active" data-template="A" onclick="selectTemplate(this)">Professional</button>
+                <button class="template-btn" data-template="B" onclick="selectTemplate(this)">Modern</button>
+                <button class="template-btn" data-template="C" onclick="selectTemplate(this)">Classic</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Items</div>
+            <div class="items-header">
+                <span>Description</span>
+                <span>Area</span>
+                <span>GST</span>
+                <span>Qty</span>
+                <span>Rate</span>
+                <span>Del</span>
+            </div>
+            <div id="items-container"></div>
+            <div class="item-buttons">
+                <button class="btn-suggested" onclick="showSuggestions()">Add Suggested</button>
+                <button class="btn-custom" onclick="addCustomItem()">Add Custom</button>
+                <button class="btn-clear" onclick="clearItems()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="total-bar">
+                <span id="total-display">Subtotal Rs. 0.00 | Tax Rs. 0.00 | Total Rs. 0.00</span>
+            </div>
+            <div class="form-row">
+                <label>Discount Amount</label>
+                <input type="number" id="discount" value="0" placeholder="Discount">
+            </div>
+            <button class="btn-generate" onclick="generatePDF()">Generate PDF Invoice</button>
+        </div>
+    </div>
+</div>
+
+<!-- Suggestions Modal -->
+<div id="suggestions-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Suggested Items</h3>
+            <button class="modal-close" onclick="closeSuggestions()">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-info">Select items to add to your invoice</p>
+            <div id="suggestions-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Catalog Screen -->
+<div id="screen-catalog" class="screen">
+    <div class="screen-header">
+        <button class="back-btn" data-target="screen-home">&#8249;</button>
+        <h2>Suggested Items</h2>
+    </div>
+    <div class="scroll-container">
+        <div class="form-row">
+            <label>Unit Type</label>
+            <select id="catalog_unit_type">
+                <option value="Split Unit" selected>Split Unit</option>
+                <option value="Cassette Unit">Cassette Unit</option>
+                <option value="Ductable Unit">Ductable Unit</option>
+                <option value="Resale">Resale</option>
+            </select>
+        </div>
+        <div id="catalog-container"></div>
+    </div>
+</div>
+
+<!-- History Screen -->
+<div id="screen-history" class="screen">
+    <div class="screen-header">
+        <button class="back-btn" data-target="screen-home">&#8249;</button>
+        <h2>Invoice History</h2>
+        <button class="refresh-btn" onclick="refreshHistory()">&#128260;</button>
+    </div>
+    <div class="scroll-container">
+        <div id="history-container"></div>
+    </div>
+</div>
+
+<!-- Settings Screen -->
+<div id="screen-settings" class="screen">
+    <div class="screen-header">
+        <button class="back-btn" data-target="screen-home">&#8249;</button>
+        <h2>Settings</h2>
+    </div>
+    <div class="scroll-container">
+        <div class="section">
+            <div class="form-row">
+                <label>Company Name</label>
+                <input type="text" id="setting_company_name" placeholder="Company Name">
+            </div>
+            <div class="form-row">
+                <label>Address</label>
+                <textarea id="setting_address" rows="3" placeholder="Address"></textarea>
+            </div>
+            <div class="form-row">
+                <label>GSTIN</label>
+                <input type="text" id="setting_gst" placeholder="GSTIN">
+            </div>
+            <div class="form-row">
+                <label>PAN</label>
+                <input type="text" id="setting_pan" placeholder="PAN">
+            </div>
+            <div class="form-row">
+                <label>Phone</label>
+                <input type="text" id="setting_phone" placeholder="Phone">
+            </div>
+            <div class="form-row">
+                <label>Default GST</label>
+                <select id="setting_default_gst">
+                    <option value="0%">0%</option>
+                    <option value="5%">5%</option>
+                    <option value="12%">12%</option>
+                    <option value="18%">18%</option>
+                    <option value="28%">28%</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Terms & Conditions (one per line)</label>
+                <textarea id="setting_terms" rows="6" placeholder="Terms and conditions"></textarea>
+            </div>
+            <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast / Alert -->
+<div id="toast" class="toast"></div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
